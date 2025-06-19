@@ -2,7 +2,9 @@ package org.example.applicacaospring.Controller;
 
 import jakarta.annotation.PostConstruct;
 import org.apache.catalina.User;
+import org.example.applicacaospring.Service.UserService;
 import org.example.applicacaospring.dto.UserDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -11,6 +13,8 @@ import java.util.List;
 
 @RestController
 public class UserController {
+    @Autowired
+    private UserService userService;
 
     public static List<UserDTO> usuarios = new ArrayList<UserDTO>();
 
@@ -19,9 +23,9 @@ public class UserController {
         return "<h3>hello world, Spring is working</h3>";
     }
 
-    @GetMapping("/users")
+    @GetMapping("/user/")
     public List<UserDTO> getUsers() {
-        return usuarios;
+        List<UserDTO> usuarios = userService.getAll();         return usuarios;
     }
 
     @GetMapping("/users/{cpf}")
@@ -34,12 +38,38 @@ public class UserController {
         return null;
     }
 
+    @GetMapping("/user/{id}")
+    UserDTO findById(@PathVariable Long id) {
+        return userService.findById(id);
+    }
+
+    @PostMapping("/user")
+    UserDTO newUser(@RequestBody UserDTO userDTO) {
+        return userService.save(userDTO);
+    }
+
     @PostMapping("/newUser")
     UserDTO inserir(@RequestBody UserDTO userDto){
         userDto.setDataCadastro(new Date());
         usuarios.add(userDto);
         return userDto;
     }
+
+    @GetMapping("/user/cpf/{cpf}")
+    UserDTO findByCpf(@PathVariable String cpf) {
+        return userService.findByCpf(cpf);
+    }
+
+    @DeleteMapping("/user/{id}")
+    UserDTO delete(@PathVariable Long id) {
+        return userService.delete(id);
+    }
+
+    @GetMapping("/user/search")
+    public List<UserDTO> queryByName(@RequestParam(name="nome", required = true) String nome) {
+        return userService.queryByName(nome);
+    }
+
 
     @DeleteMapping("/users/{cpf}")
     public Boolean deletar(@PathVariable String cpf){
